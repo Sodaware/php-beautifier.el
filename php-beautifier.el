@@ -101,7 +101,6 @@ back to PREVIOUS-WINDOW-START and closes OUTPUT-BUFFER."
 (defun php-beautifier-format-region ()
   "Reformat the current region using PHP_Beautifier."
   (interactive)
-  (message "Region start : %s " (region-beginning))
   (php-beautifier--format-region (region-beginning) (region-end)))
 
 ;;;###autoload

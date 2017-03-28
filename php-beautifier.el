@@ -63,6 +63,18 @@
               "--indent_spaces"
               "--indent_tabs")))
 
+(defun php-beautifier--exec (input-buffer start-point end-point output-buffer)
+  "Execute the beautifier on a region.
+
+Call the beautifier backend on INPUT-BUFFER between START-POINT and END-POINT
+points and place the result into OUTPUT-BUFFER.
+
+Returns `t` if the process executed correctly or `NIL` if it failed."
+  (zerop (shell-command-on-region
+          start-point end-point
+          (php-beautifier--create-shell-command)
+          input-buffer t output-buffer t)))
+
 (defun php-beautifier--format-region (start end)
   "Replace a region from START to END with content formatted by PHP_Beautifier.
 
@@ -71,9 +83,8 @@ recognize it as PHP code."
   (let* ((output-buffer-name "*PHP_Beautifier error messages*")
          (output-buffer (get-buffer-create output-buffer-name))
          (previous-point (point))
-         (previous-window-start (window-start))
-         (shell-command (php-beautifier--create-shell-command)))
-    (if (zerop (shell-command-on-region start end shell-command (current-buffer) t output-buffer t))
+         (previous-window-start (window-start)))
+    (if (php-beautifier--exec (current-buffer) start end output-buffer)
         (php-beautifier--on-success previous-point
                                     previous-window-start
                                     output-buffer)

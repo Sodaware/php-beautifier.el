@@ -18,6 +18,53 @@
    (php-beautifier-format-buffer)))
 
 
+;; phpcbf integration
+
+(ert-deftest php-beautifier-test/phpcbf-installed-p-returns-t-when-installed ()
+  (with-mock
+   (stub executable-find => "/path/to/phpcbf")
+   (should (php-beautifier-phpcbf-installed-p))))
+
+(ert-deftest php-beautifier-test/phpcbf-installed-p-returns-nil-when-not-installed ()
+  (with-mock
+   (stub executable-find => nil)
+   (should-not (php-beautifier-phpcbf-installed-p))))
+
+(ert-deftest php-beautifier-test/phpcbf-can-use-p-returns-t-when-installed-and-valid-standard ()
+  (with-mock
+   (stub executable-find => "/path/to/phpcbf")
+   (stub php-beautifier--phpcbf-fetch-standards => "The installed coding standards are MySource, PEAR and PHPCS\n")
+   (let ((php-beautifier-phpcbf-standard "MySource"))
+     (should (php-beautifier-phpcbf-can-use-p)))))
+
+(ert-deftest php-beautifier-test/phpcbf-can-use-p-returns-nil-when-no-phpcbf ()
+  (with-mock
+   (stub executable-find => nil)
+   (stub php-beautifier-phpcbf-valid-standard-p => t)
+   (should-not (php-beautifier-phpcbf-can-use-p))))
+
+(ert-deftest php-beautifier-test/phpcbf-can-use-p-returns-nil-when-no-valid-standard ()
+  (with-mock
+   (stub executable-find => "/path/to/phpcbf")
+   (stub php-beautifier-phpcbf-valid-standard-p => nil)
+   (should-not (php-beautifier-phpcbf-can-use-p))))
+
+(ert-deftest php-beautifier-test/can-creates-phpcbf-command-line ()
+  (let ((php-beautifier-phpcbf-path "/path/to/phpcbf")
+        (php-beautifier-phpcbf-standard "Testing"))
+    (should (string= "/path/to/phpcbf --standard=Testing"
+                     (php-beautifier--create-phpcbf-shell-command)))))
+
+(ert-deftest php-beautifier-test/adds-phpcbf-command-line-when-setup ()
+  (with-mock
+   (stub executable-find => "/path/to/phpcbf")
+   (stub php-beautifier-phpcbf-standards => (list "Testing"))
+   (let ((php-beautifier-executable-path "/path/to/php_beautifier")
+         (php-beautifier-phpcbf-path "/path/to/phpcbf")
+         (php-beautifier-phpcbf-standard "Testing"))
+     (should (string= "/path/to/php_beautifier --indent_spaces | /path/to/phpcbf --standard=Testing"
+                      (php-beautifier--create-shell-command))))))
+
 ;; phpcbf standard checks
 
 (ert-deftest php-beautifier-test/can-fetch-all-phpcbf-standards ()

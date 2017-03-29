@@ -74,6 +74,23 @@
   :type '(string))
 
 
+;; PHPCBF integration
+
+(defun php-beautifier-phpcbf-installed-p ()
+  "Check if phpcbf is installed and configured correctly."
+  (executable-find php-beautifier-phpcbf-path))
+
+(defun php-beautifier-phpcbf-can-use-p ()
+  "Check if phpcbf is installed and a valid standard is set."
+  (and (php-beautifier-phpcbf-installed-p)
+       (php-beautifier-phpcbf-valid-standard-p php-beautifier-phpcbf-standard)))
+
+(defun php-beautifier--create-phpcbf-shell-command ()
+  "Create the shell command to call phpcbf."
+  (format "%s --standard=%s"
+          php-beautifier-phpcbf-path
+          php-beautifier-phpcbf-standard))
+
 ;; PHPCBF standards helpers
 
 (defun php-beautifier-phpcbf-valid-standard-p (standard-name)
@@ -109,11 +126,14 @@
 
 (defun php-beautifier--create-shell-command ()
   "Create the shell command to call PHP_Beautifier."
-  (format "%s %s"
+  (format "%s %s%s"
           php-beautifier-executable-path
           (if (string= "spaces" php-beautifier-indent-method)
               "--indent_spaces"
-              "--indent_tabs")))
+              "--indent_tabs")
+          (if (php-beautifier-phpcbf-can-use-p)
+              (format " | %s" (php-beautifier--create-phpcbf-shell-command))
+              "")))
 
 (defun php-beautifier--exec (input-buffer start-point end-point output-buffer)
   "Execute the beautifier on a region.

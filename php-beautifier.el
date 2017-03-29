@@ -63,16 +63,77 @@
   :options '("tabs" "spaces")
   :type '(string))
 
+(defcustom php-beautifier-phpcbf-path "phpcbf"
+  "The full path to the `phpcbf` executable."
+  :group 'php-beautifier
+  :type '(file))
+
+(defcustom php-beautifier-phpcbf-standard nil
+  "The coding standard to use when calling phpcbf."
+  :group 'php-beautifier
+  :type '(string))
+
+
+;; PHPCBF integration
+
+(defun php-beautifier-phpcbf-installed-p ()
+  "Check if phpcbf is installed and configured correctly."
+  (executable-find php-beautifier-phpcbf-path))
+
+(defun php-beautifier-phpcbf-can-use-p ()
+  "Check if phpcbf is installed and a valid standard is set."
+  (and (php-beautifier-phpcbf-installed-p)
+       (php-beautifier-phpcbf-valid-standard-p php-beautifier-phpcbf-standard)))
+
+(defun php-beautifier--create-phpcbf-shell-command ()
+  "Create the shell command to call phpcbf."
+  (format "%s --standard=%s"
+          php-beautifier-phpcbf-path
+          php-beautifier-phpcbf-standard))
+
+;; PHPCBF standards helpers
+
+(defun php-beautifier-phpcbf-valid-standard-p (standard-name)
+  "Check STANDARD-NAME is registered with phpcbf."
+  (when (> (length standard-name) 0)
+    (member standard-name (php-beautifier-phpcbf-standards))))
+
+(defun php-beautifier-phpcbf-standards ()
+  "Fetch a list of all standards registered with phpcbf."
+  (php-beautifier--phpcbf-parse-standards (php-beautifier--phpcbf-fetch-standards)))
+
+(defun php-beautifier--phpcbf-fetch-standards ()
+  "Call the phpcbf executable and return the standards it lists."
+  (shell-command-to-string
+   (format "%s -i" php-beautifier-phpcbf-path)))
+
+(defun php-beautifier--phpcbf-parse-standards (standards)
+  "Parse a list of STANDARDS and return as a list of names."
+  ;; TODO: Remove the magic number `35` here - it's the length of:
+  ;; "The installed coding standards are MySource, PEAR and PHPCS\n"
+  ;; which isn't useful for none-English installs.
+  ;; Should probably remove the `and` as well.
+  (mapcar 'php-beautifier--trim-standard-name
+          (delete "and" (split-string (substring standards 35)))))
+
+(defun php-beautifier--trim-standard-name (standard)
+  "Trim trailing spaces and commas from STANDARD name."
+  (if (string-match "[\ ,]*$" standard)
+      (replace-match "" nil nil standard)
+      standard))
 
 ;; Code formatting functions
 
 (defun php-beautifier--create-shell-command ()
   "Create the shell command to call PHP_Beautifier."
-  (format "%s %s"
+  (format "%s %s%s"
           php-beautifier-executable-path
           (if (string= "spaces" php-beautifier-indent-method)
               "--indent_spaces"
-              "--indent_tabs")))
+              "--indent_tabs")
+          (if (php-beautifier-phpcbf-can-use-p)
+              (format " | %s" (php-beautifier--create-phpcbf-shell-command))
+              "")))
 
 (defun php-beautifier--exec (input-buffer start-point end-point output-buffer)
   "Execute the beautifier on a region.
@@ -81,10 +142,13 @@ Call the beautifier backend on INPUT-BUFFER between START-POINT and END-POINT
 points and place the result into OUTPUT-BUFFER.
 
 Returns `t` if the process executed correctly or `NIL` if it failed."
-  (zerop (shell-command-on-region
-          start-point end-point
-          (php-beautifier--create-shell-command)
-          input-buffer t output-buffer t)))
+  (let ((result (shell-command-on-region
+                 start-point end-point
+                 (php-beautifier--create-shell-command)
+                 input-buffer t output-buffer t)))
+    (if (php-beautifier-phpcbf-can-use-p)
+        (= 1 result)
+        (zerop result))))
 
 (defun php-beautifier--format-region (start end)
   "Replace a region from START to END with content formatted by PHP_Beautifier.

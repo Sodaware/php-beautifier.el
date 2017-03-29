@@ -17,6 +17,30 @@
    (mock (shell-command-on-region 1 11 * * t * t) => 0)
    (php-beautifier-format-buffer)))
 
+(ert-deftest php-beautifier-tests/exec-checks-for-0-result-when-no-phpcbf ()
+  ;; CBF not used but 1 returned - should return nil
+  (with-mock
+   (mock (shell-command-on-region 1 1 * * t * t) => 1)
+   (stub php-beautifier-phpcbf-can-use-p => nil)
+   (should-not (php-beautifier--exec nil 1 1 nil)))
+  ;; CBF not used and 0 returned - should return true
+  (with-mock
+   (mock (shell-command-on-region 1 1 * * t * t) => 0)
+   (stub php-beautifier-phpcbf-can-use-p => nil)
+   (should (php-beautifier--exec nil 1 1 nil))))
+
+(ert-deftest php-beautifier-tests/exec-checks-for-1-result-when-using-phpcbf ()
+  ;; CBF used but 0 returned - should return nil
+  (with-mock
+   (mock (shell-command-on-region 1 1 * * t * t) => 0)
+   (stub php-beautifier-phpcbf-can-use-p => t)
+   (should-not (php-beautifier--exec nil 1 1 nil)))
+  ;; CBF used and 1 returned - should return true
+  (with-mock
+   (mock (shell-command-on-region 1 1 * * t * t) => 1)
+   (stub php-beautifier-phpcbf-can-use-p => t)
+   (should (php-beautifier--exec nil 1 1 nil))))
+
 
 ;; phpcbf integration
 

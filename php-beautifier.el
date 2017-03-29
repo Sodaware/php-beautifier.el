@@ -142,10 +142,13 @@ Call the beautifier backend on INPUT-BUFFER between START-POINT and END-POINT
 points and place the result into OUTPUT-BUFFER.
 
 Returns `t` if the process executed correctly or `NIL` if it failed."
-  (zerop (shell-command-on-region
-          start-point end-point
-          (php-beautifier--create-shell-command)
-          input-buffer t output-buffer t)))
+  (let ((result (shell-command-on-region
+                 start-point end-point
+                 (php-beautifier--create-shell-command)
+                 input-buffer t output-buffer t)))
+    (if (php-beautifier-phpcbf-can-use-p)
+        (= 1 result)
+        (zerop result))))
 
 (defun php-beautifier--format-region (start end)
   "Replace a region from START to END with content formatted by PHP_Beautifier.

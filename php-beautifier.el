@@ -78,7 +78,8 @@
 
 (defun php-beautifier-phpcbf-valid-standard-p (standard-name)
   "Check STANDARD-NAME is registered with phpcbf."
-  (member standard-name (php-beautifier-phpcbf-standards)))
+  (when (> (length standard-name) 0)
+    (member standard-name (php-beautifier-phpcbf-standards))))
 
 (defun php-beautifier-phpcbf-standards ()
   "Fetch a list of all standards registered with phpcbf."

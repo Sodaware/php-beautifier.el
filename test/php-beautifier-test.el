@@ -42,6 +42,13 @@
    (stub php-beautifier--phpcbf-fetch-standards => "The installed coding standards are MySource, PEAR and PHPCS\n")
    (should-not (php-beautifier-phpcbf-valid-standard-p "SomeOtherStandard"))))
 
+(ert-deftest php-beautifier-test/valid-standard-returns-nil-when-empty-or-nil ()
+  (with-mock
+   (stub php-beautifier--phpcbf-fetch-standards => (error "Should not reach this far"))
+   (should-not (php-beautifier-phpcbf-valid-standard-p nil))
+   (should-not (php-beautifier-phpcbf-valid-standard-p ""))))
+
+
 ;; Indentation method parameter checks
 
 (ert-deftest php-beautifier-test/adds-space-indent-method-correctly ()

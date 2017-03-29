@@ -18,6 +18,30 @@
    (php-beautifier-format-buffer)))
 
 
+;; phpcbf standard checks
+
+(ert-deftest php-beautifier-test/can-fetch-all-phpcbf-standards ()
+  (with-mock
+   (stub php-beautifier--phpcbf-fetch-standards => "The installed coding standards are MySource, PEAR and PHPCS\n")
+   (let ((result (php-beautifier-phpcbf-standards)))
+     (should (listp result)))))
+
+(ert-deftest php-beautifier-test/can-parse-valid-phpcbf-standards-list ()
+  (let ((standards "The installed coding standards are MySource, PEAR and PHPCS\n"))
+    (should (listp (php-beautifier--phpcbf-parse-standards standards)))))
+
+(ert-deftest php-beautifier-test/valid-standard-returns-t-when-valid ()
+  (with-mock
+   (stub php-beautifier--phpcbf-fetch-standards => "The installed coding standards are MySource, PEAR and PHPCS\n")
+   (should (php-beautifier-phpcbf-valid-standard-p "MySource"))
+   (should (php-beautifier-phpcbf-valid-standard-p "PEAR"))
+   (should (php-beautifier-phpcbf-valid-standard-p "PHPCS"))))
+
+(ert-deftest php-beautifier-test/valid-standard-returns-nil-when-invalid ()
+  (with-mock
+   (stub php-beautifier--phpcbf-fetch-standards => "The installed coding standards are MySource, PEAR and PHPCS\n")
+   (should-not (php-beautifier-phpcbf-valid-standard-p "SomeOtherStandard"))))
+
 ;; Indentation method parameter checks
 
 (ert-deftest php-beautifier-test/adds-space-indent-method-correctly ()

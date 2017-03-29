@@ -63,6 +63,46 @@
   :options '("tabs" "spaces")
   :type '(string))
 
+(defcustom php-beautifier-phpcbf-path "phpcbf"
+  "The full path to the `phpcbf` executable."
+  :group 'php-beautifier
+  :type '(file))
+
+(defcustom php-beautifier-phpcbf-standard nil
+  "The coding standard to use when calling phpcbf."
+  :group 'php-beautifier
+  :type '(string))
+
+
+;; PHPCBF standards helpers
+
+(defun php-beautifier-phpcbf-valid-standard-p (standard-name)
+  "Check STANDARD-NAME is registered with phpcbf."
+  (member standard-name (php-beautifier-phpcbf-standards)))
+
+(defun php-beautifier-phpcbf-standards ()
+  "Fetch a list of all standards registered with phpcbf."
+  (php-beautifier--phpcbf-parse-standards (php-beautifier--phpcbf-fetch-standards)))
+
+(defun php-beautifier--phpcbf-fetch-standards ()
+  "Call the phpcbf executable and return the standards it lists."
+  (shell-command-to-string
+   (format "%s -i" php-beautifier-phpcbf-path)))
+
+(defun php-beautifier--phpcbf-parse-standards (standards)
+  "Parse a list of STANDARDS and return as a list of names."
+  ;; TODO: Remove the magic number `35` here - it's the length of:
+  ;; "The installed coding standards are MySource, PEAR and PHPCS\n"
+  ;; which isn't useful for none-English installs.
+  ;; Should probably remove the `and` as well.
+  (mapcar 'php-beautifier--trim-standard-name
+          (delete "and" (split-string (substring standards 35)))))
+
+(defun php-beautifier--trim-standard-name (standard)
+  "Trim trailing spaces and commas from STANDARD name."
+  (if (string-match "[\ ,]*$" standard)
+      (replace-match "" nil nil standard)
+      standard))
 
 ;; Code formatting functions
 

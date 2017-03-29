@@ -2,7 +2,10 @@
 
 *php-beautifier.el* is a lightweight extension that integrates PHP source code
 beautification into Emacs using the
-[PHP_Beautifier](https://pear.php.net/package/PHP_Beautifier/) tool.
+[PHP_Beautifier](https://pear.php.net/package/PHP_Beautifier/) tool. It also
+supports running code through
+[phpcbf](https://github.com/squizlabs/PHP_CodeSniffer) to fix coding standard
+issues.
 
 
 ## Installation
@@ -16,7 +19,7 @@ All Emacs installs are a little different, but the basic outline is this:
   - Add `(require 'php-beautifier)` somewhere in your `~/.emacs.d/init.el`
 
 
-## Configuration
+## PHP_Beautifier Configuration
 
 *php-beautifier* supplies the following customisation options:
 
@@ -31,6 +34,26 @@ An example configuration with a full path and tab indentation:
 (setq php-beautifier-executable-path "/usr/bin/php_beautifier")
 (setq php-beautifier-indent-method "tabs")
 ```
+
+
+## phpcbf Configuration
+
+The following options must be set for `phpcbf` to run:
+
+  - `php-beautifier-phpcbf-path` - The full path to the `phpcbf`
+    executable. This is `phpcbf` by default.
+  - `php-beautifier-phpcbf-standard` - The coding standard to use with
+    `phpcbf`. This is `nil` by default and must be set for `phpcbf` to be run.
+
+An example configuration which uses the `WordPress` coding standard:
+
+```emacs-lisp
+(setq php-beautifier-phpcbf-path "/usr/bin/phpcbf")
+(setq php-beautifier-phpcbf-standard "WordPress")
+```
+
+When using `phpcbf` the code is still run through `php_beautifier` first. In
+some circumstances this may create some odd results but it usually works.
 
 
 ## Usage

@@ -24,7 +24,7 @@
 
 ;;; Commentary:
 
-;; Integrates `PHP_Beautifier` with Emacs, allowing it to be called on a buffer
+;; Integrates `PHP_Beautifier` with Emacs and allows it to be called on a buffer
 ;; or a selected region.  PHP_Beautifier must be installed for this extension to
 ;; work - see https://pear.php.net/package/PHP_Beautifier/
 
@@ -39,6 +39,23 @@
 
 ;;   - `php-beautifier-indent-method` - The indentation method to use.  Either
 ;;      "spaces" or "tabs".  The default value is "spaces".
+
+;; As well as `PHP_Beautifier`, `phpcbf` is also supported.  `phpcbf` is a tool
+;; for fixing coding standard errors in PHP code.  If `phpcbf` is installed and
+;; configured the beautified will be passed through it before insertion.  By
+;; default it is disabled.
+
+;; `phpcbf` is part of PHP_CodeSniffer:
+;; https://github.com/squizlabs/PHP_CodeSniffer
+
+;; The customisation options for `phpcbf` are:
+
+;;   - `php-beautifier-phpcbf-path` - The full path to the `phpcbf` executable.
+;;     This is `phpcbf` by default.
+
+;;   - `php-beautifier-phpcbf` - The coding standard to use with `phpcbf`.  Must
+;;      be a valid and installed standard.  The default value is nil, which means
+;;      phpcbf will not be run.
 
 ;; Parts of this extension are based on `web-beautify`
 ;; see: https://github.com/yasuyk/web-beautify

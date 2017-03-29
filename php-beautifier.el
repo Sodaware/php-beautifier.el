@@ -3,7 +3,7 @@
 ;; Copyright (C) 2017 Phil Newton <phil@sodaware.net>
 
 ;; Author: Phil Newton<phil@sodaware.net>
-;; Version: 0.1.0
+;; Version: 0.2.0
 ;; URL: https://github.com/sodaware/php-beautifier.el
 ;; Keywords: php beautifier
 

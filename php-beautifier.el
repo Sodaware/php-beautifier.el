@@ -25,9 +25,20 @@
 ;;; Commentary:
 
 ;; Integrates `PHP_Beautifier` with Emacs, allowing it to be called on a buffer
-;; or a selected region.
+;; or a selected region.  PHP_Beautifier must be installed for this extension to
+;; work - see https://pear.php.net/package/PHP_Beautifier/
 
-;; To install PHP_Beautifier visit https://pear.php.net/package/PHP_Beautifier/
+;; Once PHP_Beautifier is installed you may need to configure the executable
+;; path.  The indentation style can also be switched between `tabs` and
+;; `spaces`.
+
+;; The customisation options are:
+
+;;   - `php-beautifier-executable-path` - The full path to the `PHP_Beautifier`
+;;      executable.  This is `php_beautifier` by default.
+
+;;   - `php-beautifier-indent-method` - The indentation method to use.  Either
+;;      "spaces" or "tabs".  The default value is "spaces".
 
 ;; Parts of this extension are based on `web-beautify`
 ;; see: https://github.com/yasuyk/web-beautify

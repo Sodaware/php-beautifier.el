@@ -47,6 +47,17 @@ formatting a region that doesn't contain one will not work.
     contents with formatted code.
 
 
+## Running Tests
+
+To run unit tests you'll need [Cask](https://github.com/cask/cask) installed.
+
+The following command will run all tests:
+
+```bash
+cask exec ert-runner
+```
+
+
 ## Licence
 
 Released under the GPLv3. See `COPYING` for the full licence.
